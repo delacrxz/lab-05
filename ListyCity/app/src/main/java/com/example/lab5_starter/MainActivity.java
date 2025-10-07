@@ -1,7 +1,11 @@
 package com.example.lab5_starter;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -21,10 +25,12 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements CityDialogFragment.CityDialogListener {
 
     private Button addCityButton;
+    private Button deleteCityButton;
     private ListView cityListView;
 
     private ArrayList<City> cityArrayList;
     private ArrayAdapter<City> cityArrayAdapter;
+    private City inFocus;
 
     private FirebaseFirestore db;
     private CollectionReference citiesRef;
@@ -42,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
 
         // Set views
         addCityButton = findViewById(R.id.buttonAddCity);
+        deleteCityButton = findViewById(R.id.buttonDeleteCity);
+        deleteCityButton.setVisibility(GONE);
         cityListView = findViewById(R.id.listviewCities);
 
         // create city array
@@ -65,6 +73,16 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
             cityDialogFragment.show(getSupportFragmentManager(),"City Details");
         });
 
+        cityListView.setOnItemLongClickListener((adapterView, view, i, l) -> {
+
+            // record city selected and show delete button
+            inFocus = cityArrayAdapter.getItem(i);
+            deleteCityButton.setVisibility(VISIBLE);
+
+            // consume item click event
+            return true;
+        });
+
         citiesRef.addSnapshotListener((value, error) -> {
             if (error != null) {
                 Log.e("Firestore", error.toString());
@@ -78,6 +96,16 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
                 }
                 cityArrayAdapter.notifyDataSetChanged();
             }
+        });
+
+        deleteCityButton.setOnClickListener(view -> {
+
+            // delete city
+            deleteCity(inFocus);
+
+            // hide delete button and clear inFocus
+            deleteCityButton.setVisibility(GONE);
+            inFocus = null;
         });
 
     }
@@ -108,5 +136,15 @@ public class MainActivity extends AppCompatActivity implements CityDialogFragmen
         cityArrayList.add(m1);
         cityArrayList.add(m2);
         cityArrayAdapter.notifyDataSetChanged();
+    }
+
+    public void deleteCity(City city){
+
+        // update arraylist
+        cityArrayList.remove(city);
+        cityArrayAdapter.notifyDataSetChanged();
+
+        // update db
+        citiesRef.document(city.getName()).delete();
     }
 }
