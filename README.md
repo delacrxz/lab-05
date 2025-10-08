@@ -13,4 +13,4 @@ N/A
 
 | Student Name | CCID     |
 | ------------ | -------- |
-| `<example1>` | `<CCID>` |
+| `Amelia Tessier` | `aatessie` |
