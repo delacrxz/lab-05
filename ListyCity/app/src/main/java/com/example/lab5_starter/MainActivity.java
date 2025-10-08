@@ -23,7 +23,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements CityDialogFragment.CityDialogListener {
-
+    // long press list item to show delete button
     private Button addCityButton;
     private Button deleteCityButton;
     private ListView cityListView;
